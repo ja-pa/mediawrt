@@ -1,0 +1,46 @@
+#om-toolbar, .om-library-tools, .om-pagination { display:flex; flex-wrap:wrap; align-items:center; gap:.7em; margin:1em 0; }
+#om-toolbar { padding:1em; border:1px solid #8886; border-radius:.6em; }
+#om-toolbar button, #om-library button, dialog[id^="om-"] button { padding:.6em .9em; cursor:pointer; font:inherit; }
+#om-toolbar label { white-space:nowrap; }
+#om-location { flex-basis:100%; opacity:.7; overflow-wrap:anywhere; }
+#om-toolbar select, #om-search { font:inherit; padding:.55em; }
+#om-toolbar [aria-pressed="true"] { background:#355d8b; color:white; border-color:#355d8b; }
+#om-search { flex:1; min-width:12em; }
+.om-films #files, .om-films #gfiles, .om-films #lazy { display:none!important; }
+.om-avi-hidden { display:none!important; }
+#om-cards { display:grid; grid-template-columns:repeat(auto-fill,minmax(min(100%,210px),1fr)); gap:1em; }
+#om-cards[data-size="small"] { grid-template-columns:repeat(auto-fill,minmax(min(100%,145px),1fr)); }
+#om-cards[data-size="large"] { grid-template-columns:repeat(auto-fill,minmax(min(100%,300px),1fr)); }
+.om-card { border:1px solid #8886; border-radius:.5em; overflow:hidden; min-width:0; padding:.6em; }
+#om-library .om-open { display:block; width:100%; border:0; background:transparent; color:inherit; text-align:left; padding:0; }
+.om-open img, .om-placeholder { display:block; width:100%; aspect-ratio:5/4; object-fit:contain; background:#111; border-radius:.25em; }
+.om-placeholder { text-align:center; align-content:center; font-size:3em; color:#aaa; }
+.om-folder-icon { display:block; text-align:center; font-size:4em; padding:.4em 0; }
+.om-text-list .om-folder-icon { display:inline; font-size:1.2em; padding:0; }
+#om-group-nav:not([hidden]) { display:flex; align-items:center; gap:.7em; flex-wrap:wrap; }
+#om-group-label { overflow-wrap:anywhere; }
+.om-open span { display:block; overflow-wrap:anywhere; margin-top:.5em; }
+.om-card small { display:block; opacity:.7; overflow-wrap:anywhere; margin:.6em 0; }
+.om-links { display:flex; gap:1em; }
+#om-cards.om-text-list { grid-template-columns:1fr; }
+.om-text-list .om-card { display:flex; flex-wrap:wrap; align-items:center; gap:1em; }
+#om-library .om-text-list .om-open { flex:1; min-width:12em; }
+.om-pagination { justify-content:center; }
+dialog[id^="om-"] { color:#eee; background:#242424; border:1px solid #888; border-radius:.6em; width:min(90vw,960px); max-height:90vh; padding:1.2em; }
+dialog[id^="om-"]::backdrop { background:#000b; }
+#om-player video { width:100%; max-height:65vh; background:black; }
+#om-playing, #om-upload-path { overflow-wrap:anywhere; }
+#om-upload-folders { display:flex; flex-direction:column; align-items:stretch; gap:.5em; max-height:45vh; overflow:auto; margin:1em 0; }
+@media(max-width:600px) {
+    .om-media #tree { display:none!important; }
+    .om-media #wrap { margin:1em .65em!important; }
+    #om-toolbar { gap:.6em; padding:.6em; }
+    .om-library-tools button { flex:1; }
+    dialog[id^="om-"] { padding:.7em; }
+}
+
+/* MediaWrt additions; original gallery and player styles remain upstream. */
+.om-links {flex-wrap:wrap; align-items:center}
+.mw-note {flex-basis:100%; opacity:.7}
+#om-library [aria-pressed="true"] {background:#355d8b;color:white}
+#om-toolbar strong {font-size:1.6em;letter-spacing:.02em}

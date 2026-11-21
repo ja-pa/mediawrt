@@ -1,0 +1,12 @@
+{
+  "media": "./media",
+  "listen": "127.0.0.1",
+  "port": 3924,
+  "state_dir": "./state",
+  "file_logging": false,
+  "thumbnails": false,
+  "anonymous": "r",
+  "users": [],
+  "server_admins": [],
+  "library_sources": []
+}
