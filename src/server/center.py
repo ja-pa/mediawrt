@@ -1,8 +1,8 @@
 """MediaWrt media-center API. Transport, auth and filesystem operations stay in Copyparty."""
 from contextlib import contextmanager
+from functools import lru_cache
 import hashlib
 import json
-import mimetypes
 import os
 from pathlib import Path
 import re
@@ -15,7 +15,7 @@ import xml.etree.ElementTree as ET
 
 import library as lib
 
-ROOT = Path(__file__).resolve().parent
+ROOT = Path(__file__).resolve().parent / 'web'
 PREFIX = '.cpr/media/v2/'
 AUDIO = set('mp3 flac ogg opus m4a aac wav wma aiff alac'.split())
 IMAGES = set('jpg jpeg png webp gif avif bmp'.split())
@@ -23,6 +23,7 @@ EPISODE = re.compile(r'(?i)(?:s(\d{1,2})[ ._-]*e(\d{1,3})|(\d{1,2})x(\d{1,3}))')
 jobs = lib.ThumbnailJobs()
 catalog_lock = threading.RLock()
 
+@lru_cache(maxsize=1)
 def public_config():
     return json.loads(os.environ.get('MW_PUBLIC_CONFIG', '{}'))
 
@@ -30,6 +31,7 @@ def public_config():
 def store():
     db = sqlite3.connect(str(Path(os.environ['CP_MEDIA_STATE']) / 'center-v2.sqlite'), timeout=10)
     db.execute('pragma busy_timeout=10000')
+    db.execute('pragma temp_store=MEMORY')
     try:
         with db:
             yield db
@@ -85,7 +87,7 @@ def item(vn, row):
     title = Path(fn).stem
     series = re.sub(r'[._]+', ' ', title[:match.start()]).strip(' -') if match else ''
     if kind == 'series' and not series:
-        series = Path(rd).parent.name if re.match(r'(?i)(season|sez[oó]na|s\d)', Path(rd).name) else Path(rd).name
+        series = Path(rd).parent.name if re.match(r'(?i)(season|sez[oÄ‚Ĺ‚]na|s\d)', Path(rd).name) else Path(rd).name
     year = re.search(r'\b(19\d\d|20\d\d)\b', title)
     return {'id': identity(w), 'kind': kind, 'name': fn, 'title': title, 'path': path,
             'folder': rd, 'size': size, 'modified': modified, 'added': uploaded or None,
@@ -145,7 +147,7 @@ def catalog(cli, vn):
     if group in ('series', 'album', 'artist', 'folder'):
         groups = {}
         for value in values:
-            label = value[group] or '—'
+            label = value[group] or 'Ă˘â‚¬â€ť'
             # Albums are disambiguated by directory, including identical album names.
             key = value['folder'] if group == 'album' else label
             if key not in groups:
@@ -182,15 +184,29 @@ def metadata(cli, vn, value):
     if cached: return json.loads(cached[0]), False
     src = safe_file(cli, vn, value['path'])
     def work():
-        # Revalidate after queue wait; bounded ffprobe output, no full movie hashing.
+        # Revalidate after queue wait; no full movie hashing.
         if vn.chk_ap(str(src)) is not vn: return False
         data = {}
         try:
-            proc = subprocess.run(['ffprobe', '-v', 'error', '-show_entries',
+            command = ['ffprobe', '-v', 'error', '-show_entries',
                 'format=duration:format_tags=title,artist,album,track,date:stream=codec_name,codec_type,width,height',
-                '-of', 'json', str(src)], stdout=subprocess.PIPE, stderr=subprocess.DEVNULL, timeout=15)
-            if proc.returncode == 0: data = json.loads(proc.stdout[:1024*1024])
-        except (OSError, ValueError, subprocess.TimeoutExpired): pass
+                '-of', 'json', str(src)]
+            with subprocess.Popen(command, stdout=subprocess.PIPE, stderr=subprocess.DEVNULL) as proc:
+                # Bound the pipe while reading, not after communicate() has allocated it.
+                timer = threading.Timer(15, proc.kill)
+                timer.daemon = True
+                timer.start()
+                try:
+                    output = proc.stdout.read(1024 * 1024 + 1)
+                    if len(output) > 1024 * 1024:
+                        proc.kill()
+                    if proc.wait() == 0 and len(output) <= 1024 * 1024:
+                        data = json.loads(output)
+                finally:
+                    timer.cancel()
+                    if proc.poll() is None:
+                        proc.kill()
+        except (OSError, ValueError): pass
         with catalog_lock, store() as db:
             db.execute('insert or replace into metadata values(?,?,?)', (value['id'], key, json.dumps(data)))
         return True
@@ -291,16 +307,23 @@ def install():
     from copyparty.up2k import Up2k
     from copyparty.util import Pebkac
     init_store()
+    assets = {p.relative_to(ROOT).as_posix(): (p.read_bytes(),
+              'text/javascript; charset=utf-8' if p.suffix == '.js' else 'text/css; charset=utf-8')
+              for p in ROOT.rglob('*') if p.suffix in ('.js', '.css')}
     old_get, old_post, old_init = HttpCli.handle_get, HttpCli.handle_post, Up2k.init_indexes
     def handle_get(cli):
         if cli.vpath in ('app', 'app/') or (cli.vpath.rstrip('/') == 'media' and not cli.uparam):
             cli.out_headers['Cache-Control'] = 'no-cache'
-            html = (ROOT/'app.html').read_text(encoding='utf-8').replace('<script defer', '<script nonce="' + cli.js_nonce + '" defer')
+            html = (ROOT/'index.html').read_text(encoding='utf-8').replace('<script defer', '<script nonce="' + cli.js_nonce + '" defer')
             cli.reply(html.encode('utf-8'), mime='text/html; charset=utf-8'); return True
-        if cli.vpath in ('app/app.js','app/app.css'):
-            name = cli.vpath.split('/')[-1]
-            cli.out_headers['Cache-Control'] = 'no-cache'
-            cli.reply((ROOT/name).read_bytes(), mime='text/javascript; charset=utf-8' if name.endswith('.js') else 'text/css; charset=utf-8'); return True
+        if cli.vpath.startswith('app/'):
+            # Exact manifest lookup; arbitrary paths and traversal are never served.
+            asset = assets.get(cli.vpath[4:])
+            if asset is not None:
+                body, mime = asset
+                cli.out_headers['Cache-Control'] = 'no-cache'
+                cli.reply(body, mime=mime)
+                return True
         if cli.vpath.startswith(PREFIX):
             try: return get(cli)
             except Pebkac as e: return lib.reply(cli, {'error':'request_failed'}, e.code)

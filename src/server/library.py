@@ -166,7 +166,7 @@ def video_item(vn, rd, fn, size, modified):
 @functools.lru_cache(maxsize=8192)
 def czech_key(value):
     value = unicodedata.normalize("NFC", value).casefold()
-    alphabet = "a b c č d e f g h ch i j k l m n o p q r ř s š t u v w x y z ž".split()
+    alphabet = "a b c Ă„Ĺ¤ d e f g h ch i j k l m n o p q r Äąâ„˘ s ÄąË‡ t u v w x y z ÄąÄľ".split()
     weights = {char: i + 100 for i, char in enumerate(alphabet)}
     tokens, i = [], 0
     while i < len(value):
@@ -290,11 +290,6 @@ def attach_ids(cur, items):
 
 def get(cli, original):
     route = cli.vpath[len(PREFIX):]
-    if route in ("media.js", "media.css"):
-        cli.out_headers["Cache-Control"] = "no-cache"
-        mime = "text/javascript; charset=utf-8" if route.endswith("js") else "text/css; charset=utf-8"
-        cli.reply((ROOT / route).read_bytes(), mime=mime)
-        return True
     vn = volume(cli)
     if route == "v1/config":
         return reply(cli, {"volume": "/" + vn.vpath + "/", "thumbnails": os.environ.get("CP_THUMBNAILS") == "1",
@@ -328,6 +323,8 @@ def post(cli, original):
         return execute_move(cli, vn)
     if cli.vpath != PREFIX + "v1/scan":
         return reply(cli, {"error": "Not found"}, 404)
+    if cli.uname not in vn.axs.uwrite:
+        raise Pebkac(403, "Write permission required to scan")
     with scan_lock:
         current = state(cli, vn)
         if not current["scanning"]:

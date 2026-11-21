@@ -1,0 +1,39 @@
+/* Palette 07 — Nordic Petrol (Dark · Deep Petrol Teal & Warm Sand) */
+:root[data-theme="07-nordic-petrol"] {
+  color-scheme: dark;
+  --bg: #0d1418;
+  --sidebar: #090e11;
+  --panel: #141e24;
+  --panel-alt: #1b2830;
+  --input-bg: #0a1013;
+  --line: #213039;
+  --line-strong: #314653;
+  --line-hover: #4b6a7d;
+  --text: #ebf3f6;
+  --text-soft: #c2d3db;
+  --muted: #849ca8;
+  --accent: #35a7b8;
+  --accent-hover: #46bdd0;
+  --accent-ink: #051619;
+  --accent-tint: rgba(53, 167, 184, 0.13);
+  --gold: #d4b483;
+  --gold-tint: rgba(212, 180, 131, 0.1);
+  --gold-border: rgba(212, 180, 131, 0.3);
+  --hover-tint: rgba(235, 243, 246, 0.045);
+  --hairline: rgba(235, 243, 246, 0.07);
+  --hero-bg: linear-gradient(125deg, #13252e 0%, #0f181d 65%, #172327 100%);
+  --cover-bg: linear-gradient(160deg, #1a2931, #0e161b);
+  --placeholder: #435c69;
+  --chip-bg: rgba(9, 14, 17, 0.86);
+  --dialog-bg: #111a20;
+  --backdrop: rgba(4, 8, 11, 0.88);
+  --dock-bg: rgba(9, 14, 17, 0.94);
+  --toast-bg: #ebf3f6;
+  --toast-ink: #0d1418;
+  --player-bg: #080d10;
+  --player-head: linear-gradient(180deg, #121c22 0%, #0c1317 100%);
+  --player-bar: #0e161b;
+  --player-ctl-bg: #17232a;
+  --player-ctl-hover: #20303a;
+  --chev-icon: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23d4b483' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");
+}

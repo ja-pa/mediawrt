@@ -1,0 +1,46 @@
+/* Palette 09 — Gallery Ivory (Light · Warm Archival Paper & Terracotta) */
+:root[data-theme="09-gallery-ivory"] {
+  color-scheme: light;
+  --bg: #f6f3ec;
+  --sidebar: #ece7dc;
+  --panel: #ffffff;
+  --panel-alt: #f2ede2;
+  --input-bg: #ffffff;
+  --line: #ded7c8;
+  --line-strong: #c7beab;
+  --line-hover: #8f8470;
+  --text: #1c1916;
+  --text-soft: #4a443b;
+  --muted: #766e60;
+  --accent: #c44928;
+  --accent-hover: #ad3d1f;
+  --accent-ink: #fffaf5;
+  --accent-tint: rgba(196, 73, 40, 0.1);
+  --gold: #8c6a34;
+  --gold-tint: rgba(201, 164, 92, 0.12);
+  --gold-border: rgba(201, 164, 92, 0.34);
+  --hover-tint: rgba(28, 25, 22, 0.045);
+  --hairline: rgba(28, 25, 22, 0.08);
+  --hero-bg: linear-gradient(125deg, #ffffff 0%, #f5efe3 65%, #f9f3eb 100%);
+  --cover-bg: linear-gradient(160deg, #e5dfd2, #d8d0c0);
+  --cover-shadow: 0 8px 22px rgba(28, 25, 22, 0.09);
+  --placeholder: #968c7a;
+  --chip-bg: rgba(255, 255, 255, 0.92);
+  --dialog-bg: #ffffff;
+  --backdrop: rgba(24, 21, 18, 0.56);
+  --dock-bg: rgba(255, 255, 255, 0.94);
+  --toast-bg: #1c1916;
+  --toast-ink: #f6f3ec;
+  /* Video screening room stays cinema-dark even in light theme */
+  --player-bg: #0c0b0a;
+  --player-head: linear-gradient(180deg, #171512 0%, #11100e 100%);
+  --player-bar: #13110f;
+  --player-ctl-bg: #1c1916;
+  --player-ctl-hover: #25211c;
+  --player-text: #f3efe6;
+  --player-muted: #bfb7a8;
+  --chev-icon: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%238c6a34' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");
+}
+:root[data-theme="09-gallery-ivory"] #video-modal .player-tools a {
+  color: #d4b47c;
+}

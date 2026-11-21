@@ -6,10 +6,10 @@
   `8f9a0def8a9c15252a06395781ec083372043b60caa80fb33c3d6dafa7f1b40a`.
   Copyparty and bundled-component licenses remain inside the SFX and extracted
   runtime. MediaWrt's MIT license does not replace dependency licenses.
-- The library adapter and legacy media UI originated in the MIT-licensed
+- The library adapter originated in the MIT-licensed
   omnia_video_hdd project. The original copyright notice is retained in LICENSE.
 - Criterion Editorial base styles and the ten color palettes were supplied by
-  the project owner. They are integrated into `src/app.css` with scoped theme tokens
+  the project owner. They are integrated into `src/web/css/base.css` and `src/web/css/palettes/` with scoped theme tokens
   and application-specific accessibility, mobile, gallery and fullscreen fixes.
   Showcase scripts and demo media are not included.
 - FFmpeg and ffprobe are external executables, not bundled in this repository.

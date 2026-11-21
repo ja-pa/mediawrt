@@ -1,0 +1,39 @@
+/* Palette 02 — Midnight Cobalt (Dark · Deep Cinema Blue & Silver Ice) */
+:root[data-theme="02-midnight-cobalt"] {
+  color-scheme: dark;
+  --bg: #0d1117;
+  --sidebar: #090c11;
+  --panel: #131923;
+  --panel-alt: #1a2230;
+  --input-bg: #0a0e14;
+  --line: #212b3a;
+  --line-strong: #324156;
+  --line-hover: #4e6482;
+  --text: #eef3fa;
+  --text-soft: #c5d1e2;
+  --muted: #8898b0;
+  --accent: #4f8cff;
+  --accent-hover: #6aa0ff;
+  --accent-ink: #07101f;
+  --accent-tint: rgba(79, 140, 255, 0.13);
+  --gold: #9cb6d9;
+  --gold-tint: rgba(156, 182, 217, 0.1);
+  --gold-border: rgba(156, 182, 217, 0.3);
+  --hover-tint: rgba(238, 243, 250, 0.045);
+  --hairline: rgba(238, 243, 250, 0.07);
+  --hero-bg: linear-gradient(125deg, #162133 0%, #101620 65%, #0f192b 100%);
+  --cover-bg: linear-gradient(160deg, #1b2434, #0e131c);
+  --placeholder: #465770;
+  --chip-bg: rgba(9, 12, 17, 0.86);
+  --dialog-bg: #111722;
+  --backdrop: rgba(4, 7, 12, 0.88);
+  --dock-bg: rgba(9, 12, 17, 0.94);
+  --toast-bg: #eef3fa;
+  --toast-ink: #0d1117;
+  --player-bg: #090c11;
+  --player-head: linear-gradient(180deg, #131a25 0%, #0d121a 100%);
+  --player-bar: #0e141d;
+  --player-ctl-bg: #17202e;
+  --player-ctl-hover: #1f2b3e;
+  --chev-icon: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%239cb6d9' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");
+}

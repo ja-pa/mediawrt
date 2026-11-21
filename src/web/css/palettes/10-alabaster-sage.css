@@ -1,0 +1,46 @@
+/* Palette 10 — Alabaster Sage (Light · Clean Nordic Paper & Botanical Forest) */
+:root[data-theme="10-alabaster-sage"] {
+  color-scheme: light;
+  --bg: #f4f6f4;
+  --sidebar: #e7ede8;
+  --panel: #ffffff;
+  --panel-alt: #edf2ee;
+  --input-bg: #ffffff;
+  --line: #d4ded6;
+  --line-strong: #b8c7bc;
+  --line-hover: #748a7b;
+  --text: #161d19;
+  --text-soft: #3d4d44;
+  --muted: #62756a;
+  --accent: #1f6f50;
+  --accent-hover: #185a40;
+  --accent-ink: #f4fbf7;
+  --accent-tint: rgba(31, 111, 80, 0.1);
+  --gold: #546e5d;
+  --gold-tint: rgba(134, 199, 167, 0.12);
+  --gold-border: rgba(134, 199, 167, 0.34);
+  --hover-tint: rgba(22, 29, 25, 0.045);
+  --hairline: rgba(22, 29, 25, 0.08);
+  --hero-bg: linear-gradient(125deg, #ffffff 0%, #eef4f0 65%, #f4f8f5 100%);
+  --cover-bg: linear-gradient(160deg, #dde6df, #cdd8cf);
+  --cover-shadow: 0 8px 22px rgba(22, 29, 25, 0.09);
+  --placeholder: #85988c;
+  --chip-bg: rgba(255, 255, 255, 0.92);
+  --dialog-bg: #ffffff;
+  --backdrop: rgba(16, 24, 20, 0.56);
+  --dock-bg: rgba(255, 255, 255, 0.94);
+  --toast-bg: #161d19;
+  --toast-ink: #f4f6f4;
+  /* Video screening room stays cinema-dark even in light theme */
+  --player-bg: #0a0e0c;
+  --player-head: linear-gradient(180deg, #141b18 0%, #0e1411 100%);
+  --player-bar: #101613;
+  --player-ctl-bg: #18221d;
+  --player-ctl-hover: #212e28;
+  --player-text: #edf4f0;
+  --player-muted: #b5c7be;
+  --chev-icon: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23546e5d' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");
+}
+:root[data-theme="10-alabaster-sage"] #video-modal .player-tools a {
+  color: #86c7a7;
+}

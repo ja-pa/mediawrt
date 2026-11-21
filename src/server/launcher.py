@@ -16,12 +16,23 @@ VERSION = '0.2.0'
 
 def configuration(path):
     cfg = json.loads(Path(path).read_text(encoding='utf-8'))
-    root = Path(cfg['media']).expanduser().resolve(strict=True)
+    config_dir = Path(path).resolve().parent
+    def resolve(value):
+        target = Path(value).expanduser()
+        return (target if target.is_absolute() else config_dir / target).resolve()
+    root = resolve(cfg['media'])
     if not root.is_dir():
         raise ValueError('media must be a directory')
-    base = Path(cfg.get('state_dir', str(Path(tempfile.gettempdir()) / 'mediawrt'))).expanduser().resolve()
-    paths = {key: Path(cfg.get(key + '_dir', str(base / key))).expanduser().resolve()
+    base = resolve(cfg.get('state_dir', 'state'))
+    scratch = Path(tempfile.gettempdir()) / ('mediawrt-' + hashlib.sha256(str(base).encode()).hexdigest()[:12])
+    paths = {key: resolve(cfg.get(key + '_dir', str((scratch if key in ('runtime', 'temp') else base) / key)))
              for key in ('runtime', 'database', 'cache', 'temp', 'logs')}
+    if cfg.get('required_mount'):
+        mount = resolve(cfg['required_mount'])
+        if not os.path.ismount(mount) or (root != mount and mount not in root.parents):
+            raise ValueError('Required media mount is unavailable: ' + str(mount))
+    if cfg.get('storage_policy') not in (None, 'pinned-or-ram'):
+        raise ValueError('Unknown storage_policy')
     private_name = cfg.get('private_state_name', '.mediawrt')
     if private_name not in ('.mediawrt', '.hist'):
         raise ValueError('private_state_name must be .mediawrt or .hist')
@@ -43,7 +54,7 @@ def configuration(path):
             if ancestor.stat().st_dev != allowed.stat().st_dev:
                 raise ValueError('Storage policy rejects nested filesystem: ' + str(target))
     if cfg.get('users_file'):
-        cfg['users'] = json.loads(Path(cfg['users_file']).read_text(encoding='utf-8'))
+        cfg['users'] = json.loads(resolve(cfg['users_file']).read_text(encoding='utf-8'))
     anon = cfg.get('anonymous', 'r')
     users = cfg.get('users', [])
     if anon not in ('', 'r', 'rw', 'rwm'):
@@ -71,7 +82,7 @@ def arguments(cfg, root, paths):
             '--no-acode', '--no-bacode', '--no-athumb', '--no-dirsz', '--no-snap', '--no-db-ip',
             '--no-dav', '--no-del', '--no-cp', '--no-logues', '--no-readme', '--no-html', '--no-robots',
             '--no-zip', '--no-ansi', '--no-voldump', '--http-only', '--xvol', '--xdev', '--unpost', '0',
-            '--dotpart', '--js-browser', '/.cpr/media/media.js', '--css-browser', '/.cpr/media/media.css']
+            '--dotpart']
     if not any('m' in perm.split(',')[0] for perm in access):
         argv += ['--no-mv']
     if cfg.get('reserve_private_state', False):
@@ -122,8 +133,9 @@ def main():
     for name, encoded in BUNDLE.items():
         data = zlib.decompress(base64.b85decode(encoded))
         dest = paths['runtime'] / name
+        dest.parent.mkdir(parents=True, exist_ok=True)
         if not dest.exists() or hashlib.sha256(dest.read_bytes()).digest() != hashlib.sha256(data).digest():
-            tmp = dest.with_suffix('.new')
+            tmp = dest.with_name(dest.name + '.new')
             tmp.write_bytes(data)
             tmp.replace(dest)
     spec = importlib.util.spec_from_file_location('mediawrt_sfx', paths['runtime'] / 'copyparty-sfx.py')

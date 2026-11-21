@@ -4,7 +4,6 @@ import urllib.request
 import base64
 import hashlib
 from pathlib import Path
-import sys
 import zlib
 
 ROOT = Path(__file__).resolve().parent
@@ -16,11 +15,17 @@ def build(source, output):
         raise ValueError('Copyparty 1.20.26 SFX checksum mismatch')
     files = {'copyparty-sfx.py': payload}
     files['MediaWrt-LICENSE'] = (ROOT / 'LICENSE').read_bytes()
-    files.update({name: (ROOT / 'src' / name).read_bytes()
-                  for name in ('library.py', 'media.js', 'media.css', 'center.py', 'app.html', 'app.js', 'app.css')})
+    for directory in ('server', 'web'):
+        for path in sorted((ROOT / 'src' / directory).rglob('*')):
+            if not path.is_file() or path.suffix not in ('.py', '.js', '.css', '.html'):
+                continue
+            if path.name == 'launcher.py':
+                continue
+            name = path.name if directory == 'server' else 'web/' + path.relative_to(ROOT / 'src/web').as_posix()
+            files[name] = path.read_text(encoding='utf-8').replace('\r\n', '\n').encode('utf-8')
     packed = {name: base64.b85encode(zlib.compress(data, 9)).decode('ascii') for name, data in files.items()}
-    launcher = (ROOT / 'src' / 'launcher.py').read_text(encoding='utf-8')
-    Path(output).write_text(launcher.replace('BUNDLE = {}', 'BUNDLE = ' + repr(packed)), encoding='utf-8')
+    launcher = (ROOT / 'src/server/launcher.py').read_text(encoding='utf-8')
+    Path(output).write_text(launcher.replace('BUNDLE = {}', 'BUNDLE = ' + repr(packed)), encoding='utf-8', newline='\n')
     print(output)
 
 if __name__ == '__main__':

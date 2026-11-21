@@ -33,6 +33,7 @@ class Integration(unittest.TestCase):
         cls.cfg = cls.base / 'config.json'
         cls.cfg.write_text(json.dumps({'media': str(cls.media), 'state_dir': str(cls.base / 'state'),
             'port': cls.port, 'reserve_private_state': True,
+            'runtime_dir': str(cls.base / 'runtime'), 'temp_dir': str(cls.base / 'temp'),
             'database_dir': str(cls.media / '.mediawrt/database'),
             'users': [{'name': 'editor', 'password': 'test-password', 'permissions': 'rwm'}]}))
         cls.start()
@@ -85,7 +86,7 @@ class Integration(unittest.TestCase):
         with self.request('/media/Movie.mp4', headers={'Range': 'bytes=10-19'}) as res:
             self.assertEqual(res.status, 206)
             self.assertEqual(res.read(), b'0123456789')
-        for path in ['/media/', '/.cpr/media/media.js', '/.cpr/media/media.css']:
+        for path in ['/media/', '/app/js/app.js', '/app/js/translations.js', '/app/css/base.css']:
             with self.request(path) as res: self.assertEqual(res.status, 200)
 
     def test_02_permission_and_origin(self):
@@ -93,7 +94,7 @@ class Integration(unittest.TestCase):
         self.assertTrue(self.api('config', editor=True)['move'])
         with self.assertRaises(urllib.error.HTTPError):
             self.request('/media/rejected.mp4', 'PUT', b'no')
-        for headers in [{}, {'X-Copyparty-Media': '1', 'Origin': 'http://evil.invalid'}]:
+        for headers in [{'X-Copyparty-Media': '1'}, {}, {'X-Copyparty-Media': '1', 'Origin': 'http://evil.invalid'}]:
             with self.assertRaises(urllib.error.HTTPError):
                 self.api('scan', method='POST', data=b'', headers=headers)
         with self.assertRaises(urllib.error.HTTPError):
@@ -136,7 +137,7 @@ class Integration(unittest.TestCase):
         (self.media / 'External.mp4').write_bytes(b'external')
         self.start()
         self.assertEqual(self.api('movies?q=External')['total'], 0)
-        self.api('scan', method='POST', data=b'', headers={'X-Copyparty-Media': '1'})
+        self.api('scan', method='POST', data=b'', editor=True, headers={'X-Copyparty-Media': '1'})
         for _ in range(100):
             if self.api('movies?q=External')['total'] == 1:
                 break
@@ -151,7 +152,7 @@ class Integration(unittest.TestCase):
         for _ in range(100):
             if not self.api('status')['scanning']: break
             time.sleep(.1)
-        self.api('scan', method='POST', data=b'', headers={'X-Copyparty-Media': '1'})
+        self.api('scan', method='POST', data=b'', editor=True, headers={'X-Copyparty-Media': '1'})
         for _ in range(100):
             if not self.api('status')['scanning']: return
             time.sleep(.1)
@@ -182,8 +183,8 @@ class Integration(unittest.TestCase):
             self.assertTrue(text.startswith('WEBVTT'))
             self.assertIn('00:00:01.000', text)
         with self.request('/media/') as res:
-            self.assertIn(b'/app/app.js', res.read())
-        with self.request('/app/app.js') as res:
+            self.assertIn(b'/app/js/app.js', res.read())
+        with self.request('/app/js/app.js') as res:
             self.assertIn(b'MediaWrt 2', res.read())
 
     def test_07_center_write_permissions_and_folder_move(self):
@@ -216,14 +217,40 @@ class Integration(unittest.TestCase):
         self.assertTrue((self.media / 'Choice.srt').is_file())
         self.assertTrue((self.media / 'Target/Choice.mp4').is_file())
 
+    def test_09_palette_assets_and_private_routes(self):
+        for palette in (ROOT / 'src/web/css/palettes').glob('*.css'):
+            with self.request('/app/css/palettes/' + palette.name) as response:
+                self.assertIn('text/css', response.headers['Content-Type'])
+                self.assertEqual(response.read(), palette.read_text(encoding='utf-8').encode())
+        for route in ('/app/server/launcher.py', '/app/../library.py'):
+            with self.assertRaises(urllib.error.HTTPError):
+                self.request(route)
+
 class Configuration(unittest.TestCase):
     def test_private_state_cannot_be_shared(self):
-        spec = importlib.util.spec_from_file_location('launcher', ROOT / 'src/launcher.py')
+        spec = importlib.util.spec_from_file_location('launcher', ROOT / 'src/server/launcher.py')
         launcher = importlib.util.module_from_spec(spec)
         spec.loader.exec_module(launcher)
         with tempfile.TemporaryDirectory() as tmp:
             path = Path(tmp) / 'config.json'
             path.write_text(json.dumps({'media': tmp, 'state_dir': tmp}))
+            with self.assertRaises(ValueError): launcher.configuration(path)
+
+    def test_paths_follow_config_and_mount_fails_closed(self):
+        spec = importlib.util.spec_from_file_location('launcher', ROOT / 'src/server/launcher.py')
+        launcher = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(launcher)
+        with tempfile.TemporaryDirectory() as tmp:
+            base = Path(tmp).resolve()
+            (base / 'media').mkdir()
+            path = base / 'config.json'
+            path.write_text(json.dumps({'media': 'media'}))
+            _, media, paths = launcher.configuration(path)
+            self.assertEqual(media, base / 'media')
+            self.assertEqual(paths['database'], base / 'state/database')
+            self.assertFalse((base / 'state').exists())
+            self.assertNotIn(base / 'state', paths['runtime'].parents)
+            path.write_text(json.dumps({'media': 'media', 'required_mount': 'media'}))
             with self.assertRaises(ValueError): launcher.configuration(path)
 
 if __name__ == '__main__':

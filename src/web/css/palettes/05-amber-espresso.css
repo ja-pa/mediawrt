@@ -1,0 +1,39 @@
+/* Palette 05 — Amber Espresso (Dark · Warm Hi-Fi Gold & Toasted Copper) */
+:root[data-theme="05-amber-espresso"] {
+  color-scheme: dark;
+  --bg: #13100d;
+  --sidebar: #0e0c09;
+  --panel: #1c1713;
+  --panel-alt: #26201a;
+  --input-bg: #0f0d0a;
+  --line: #30271f;
+  --line-strong: #473a2e;
+  --line-hover: #6b5745;
+  --text: #f5efe6;
+  --text-soft: #d5c8b6;
+  --muted: #a3937e;
+  --accent: #e09f24;
+  --accent-hover: #f0b137;
+  --accent-ink: #171106;
+  --accent-tint: rgba(224, 159, 36, 0.13);
+  --gold: #d49b6a;
+  --gold-tint: rgba(212, 155, 106, 0.1);
+  --gold-border: rgba(212, 155, 106, 0.3);
+  --hover-tint: rgba(245, 239, 230, 0.045);
+  --hairline: rgba(245, 239, 230, 0.07);
+  --hero-bg: linear-gradient(125deg, #271e14 0%, #17130f 65%, #221910 100%);
+  --cover-bg: linear-gradient(160deg, #282018, #14100c);
+  --placeholder: #5c4d3e;
+  --chip-bg: rgba(14, 12, 9, 0.86);
+  --dialog-bg: #181410;
+  --backdrop: rgba(8, 6, 4, 0.88);
+  --dock-bg: rgba(14, 12, 9, 0.94);
+  --toast-bg: #f5efe6;
+  --toast-ink: #13100d;
+  --player-bg: #0c0a08;
+  --player-head: linear-gradient(180deg, #191410 0%, #110e0b 100%);
+  --player-bar: #130f0c;
+  --player-ctl-bg: #1e1813;
+  --player-ctl-hover: #29211a;
+  --chev-icon: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23e09f24' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");
+}

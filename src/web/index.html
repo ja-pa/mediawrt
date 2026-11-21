@@ -1,0 +1,37 @@
+<!doctype html>
+<html lang="cs">
+  <head>
+    <meta charset="utf-8" />
+    <meta
+      name="viewport"
+      content="width=device-width,initial-scale=1,viewport-fit=cover"
+    />
+    <meta name="color-scheme" content="dark" />
+    <title>MediaWrt</title>
+    <link rel="stylesheet" href="/app/css/base.css" />
+    <link
+      id="palette"
+      rel="stylesheet"
+      href="/app/css/palettes/01-terracotta-archive.css"
+    />
+    <script defer src="/app/js/translations.js"></script>
+    <script defer src="/app/js/app.js"></script>
+  </head>
+  <body>
+    <a class="skip" href="#content">MediaWrt</a>
+    <div id="shell">
+      <aside id="sidebar"></aside>
+      <div id="workspace">
+        <header id="topbar"></header>
+        <main id="content" tabindex="-1"></main>
+      </div>
+    </div>
+    <section id="audio-dock" hidden></section>
+    <section id="transfers" hidden aria-live="polite"></section>
+    <div id="toast" role="status" hidden></div>
+    <dialog id="modal"></dialog>
+    <dialog id="video-modal"></dialog>
+    <audio id="audio" preload="metadata"></audio
+    ><noscript>MediaWrt requires JavaScript.</noscript>
+  </body>
+</html>

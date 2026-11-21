@@ -1,123 +1,111 @@
 # MediaWrt
 
-A self-hosted, Kodi-inspired web media center distributed as **one Python file**.
-Browse films, TV shows, music and photos, or manage the underlying files.
-MediaWrt embeds the pinned Copyparty 1.20.26 engine for authentication, uploads,
-HTTP Range streaming, indexing and thumbnail generation.
-
-This repository contains the application only. OpenWrt packaging and deployment
-are maintained separately.
+A Kodi-inspired web media library with a file manager, built on Copyparty.
+Runs as one Python file on OpenWrt, Linux, Windows or macOS; no pip packages,
+Node.js or CDN required at runtime. Python 3.11+; FFmpeg/ffprobe are optional.
+OpenWrt packaging lives outside this application repository.
 
 ## Run
 
-Use Python 3.11 or newer (3.11 is tested). No pip installation is needed for the
-bundled application. FFmpeg and ffprobe on PATH are optional for thumbnails and
-technical/audio metadata.
-
-1. Download or clone this repository.
-2. Copy `config.example.json` to `config.json`.
-3. Set `media` to an existing media directory and `state_dir` to a private writable
-   directory outside your media. Relative paths are resolved from the working directory.
-4. Start:
+Copy `config.example.json` to `config.json`, set `media` to an existing directory
+and `state_dir` to private writable storage, then run:
 
 ```sh
 python mediawrt.py --config config.json --check
 python mediawrt.py --config config.json
 ```
 
-Open <http://127.0.0.1:3924/media/>. The example binds to localhost and allows
-anonymous read-only access. `--check` validates configuration without writing files.
+Open <http://127.0.0.1:3924/media/>. The example allows anonymous read-only access.
+Relative paths resolve against the configuration file, regardless of working directory.
+Set `listen` and optionally `allow_cidr` for LAN access. HTTP is the default;
+use a TLS proxy when needed.
 
-To serve your LAN, set `listen` to the server's LAN address and `allow_cidr` to
-your LAN subnet. Authentication uses HTTP by default; use a TLS reverse proxy
-when traffic crosses an untrusted network. Do not put configuration or account
-files in shared media directories.
+## Storage
 
-## Features
+- `database_dir`, `cache_dir`, `logs_dir` default to subdirectories of `state_dir`
+  (default: `state` beside the configuration). These are persistent.
+- `runtime_dir`, `temp_dir` default to an instance-specific system temporary directory.
+  OpenWrt normally backs `/tmp` with RAM; other systems may use disk.
+- File logging and periodic rescans are disabled. Initial indexing runs once;
+  subsequent scans require an explicit request and write permission.
+- Thumbnails are opt-in (`thumbnails: true`), stored as JPEG files, and reused.
+  One thumbnail worker has eight queue slots. Metadata has its own single-worker
+  queue. Cache eviction is off by default.
+- Browser history, favorites, playback queue and theme stay in localStorage.
 
-- Film and episode libraries, search, sorting, favorites, watched state and resume.
-- Local posters/NFO descriptions and cached FFmpeg previews when artwork is missing.
-- HTML video playback, SRT/VTT subtitles, fullscreen and picture-in-picture where supported.
-- Music albums/artists/tracks, persistent player, queue, shuffle and repeat.
-- Photo gallery, zoom and slideshow.
-- File browser, uploads, folder creation, rename and move with collision checks
-  and optional related subtitles/artwork.
-- Czech and English UI; ten Criterion Editorial color themes under Settings.
-- Optional accounts with separate upload, move and explicit server-admin permissions.
-
-Favorites, history, queue and theme preferences stay in the browser. They are
-not synchronized by signing in. Switching themes writes no server state.
-
-## Accounts
-
-`anonymous` accepts `r` (read), `rw` (read/upload), `rwm` (also move), or an empty
-string to require an account. Define accounts using:
+For an OpenWrt disk mounted at `/mnt/media`, an application configuration can use:
 
 ```json
 {
-  "name": "editor",
-  "password": "replace-with-your-own-password",
-  "permissions": "rwm"
+  "media": "/mnt/media",
+  "state_dir": "/mnt/media/.mediawrt",
+  "reserve_private_state": true,
+  "required_mount": "/mnt/media",
+  "storage_policy": "pinned-or-ram",
+  "runtime_dir": "/tmp/mediawrt/runtime",
+  "temp_dir": "/tmp/mediawrt/temp",
+  "listen": "0.0.0.0",
+  "port": 3924,
+  "anonymous": "r"
 }
 ```
 
-Put entries in the `users` array or point `users_file` at a private JSON array.
-`server_admins: ["editor"]` separately grants metadata editing and visibility of
-server storage paths. File-management permissions alone do not grant these rights.
+`required_mount` refuses startup if that filesystem is not mounted. The optional
+`pinned-or-ram` policy limits configured write directories to the media filesystem
+or `/tmp`; it is intended for OpenWrt, not a requirement on other platforms.
+These are startup checks, not protection against unplugging a running disk.
+Do not expose state/configuration files through another file server.
 
-## Storage and resource usage
+## Accounts
 
-`state_dir` provides defaults for `database`, `cache`, `runtime`, `temp` and `logs`.
-Override them independently with `database_dir`, `cache_dir`, `runtime_dir`,
-`temp_dir` and `logs_dir`. Put persistent databases/cache on your chosen disk and
-runtime/temp on RAM-backed storage if desired. `file_logging` defaults to false.
+`anonymous` accepts `r`, `rw`, `rwm`, or an empty string to require login.
+Use `users` (or a private `users_file` JSON array) for accounts:
 
-The first index is built automatically; subsequent scans are manual. Full media
-hashing and periodic rescanning are disabled. Previews are JPEG files in the cache,
-not SQLite blobs. SQLite stores the catalog and extracted metadata. Thumbnail work
-uses one worker with at most eight queued tasks; the UI requests at most two previews
-at a time for visible/nearby cards. Cached results are reused; changes to paths or
-modification times, or removal of cache files, can trigger regeneration.
-Automatic cache cleanup is disabled by default, so administrators should monitor size.
+```json
+[{"name":"editor","password":"replace-me","permissions":"rwm"}]
+```
 
-`thumbnails: true` enables FFmpeg previews. `library_sources`, for example
-`[{"path":"TV","kind":"series"}]`, supplies series classification hints; filenames
-such as `S01E02` and `1x02` are also recognized.
+`r` reads, `w` uploads/creates directories and requests scans, `m` moves/renames.
+`server_admins: ["editor"]` additionally permits metadata edits and storage-path
+visibility. The file manager supports upload, rename and same-filesystem moves.
+Deletion and resumable uploads are not implemented.
 
-## Build and test
+## Source and build
 
-The checked-in `mediawrt.py` is ready to run. Development sources are in `src/`;
-rebuild after changing them:
+```text
+src/server/          Python launcher, library and media APIs
+src/web/index.html   Application shell
+src/web/js/          UI logic and separate translations
+src/web/css/base.css Shared layout, player and responsive styles
+src/web/css/palettes/ One CSS file per selectable theme
+build.py            Packs sources and pinned Copyparty into mediawrt.py
+mediawrt.py         Ready-to-run generated application
+tests/             Integration and configuration tests
+```
+
+Edit sources, then rebuild. No frontend bundler is needed:
 
 ```sh
 python build.py --download-upstream
 python -m unittest discover -s tests -v
-node --check src/app.js
+node --check src/web/js/app.js
 ```
 
-The download is explicit and its SHA-256 is checked before use. For an offline
-build, supply an existing pinned release:
+The explicit download verifies the pinned Copyparty 1.20.26 SHA-256.
+Later builds use `python build.py`; offline builds accept the SFX path as an argument.
+On systems with a RAM-backed temporary directory, set `TMPDIR` to a disk-backed
+scratch directory when running upload/move tests; Copyparty rejects RAM-only uploads.
 
-```sh
-python build.py /path/to/copyparty-sfx-1.20.26.py
-```
+CSS files remain separate inside the bundle and over HTTP; only the selected palette
+is requested. Node is only useful for development syntax checks.
 
-The build embeds HTML/CSS/JavaScript, adapters and the upstream SFX. The resulting
-application needs no source directory, external fonts or CDN. Integration tests start
-an actual bundled server with temporary data; they do not contact a deployed server.
+## Limits
 
-## Current limits
+Playback depends on browser codecs; there is no transcoding or surround-to-stereo
+conversion. Statistics are not collected. The catalog currently filters the whole
+index in memory, so very large libraries need further optimization for small routers.
+Client-wide operations stop at 6,000 entries. Duplicate-content IDs can share playback
+state. Personal-data import restores favorites/history but not the exported queue.
+Older Android fullscreen still needs physical-device testing.
 
-Browser codec support determines playback; there is no audio/video transcoding or
-stereo conversion. Simple uploads cannot resume after page reload. File deletion and
-cross-device moves are not implemented. Duplicate-content identities may share
-personal playback state. Client-side whole-library operations cap at 6,000 entries;
-the server filters the entire index, so very large libraries need performance testing.
-Personal-data export includes the queue, but import currently restores only history
-and favorites. Online metadata providers and statistics collection are not implemented.
-System fullscreen behavior on older Android devices still needs device-specific testing.
-
-## License
-
-MediaWrt code is MIT licensed; see [LICENSE](LICENSE).
-Bundled dependencies retain their own licenses; see [THIRD_PARTY.md](THIRD_PARTY.md).
+MIT; see [LICENSE](LICENSE) and [dependency notices](THIRD_PARTY.md).

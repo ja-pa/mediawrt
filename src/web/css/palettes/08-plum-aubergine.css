@@ -1,0 +1,39 @@
+/* Palette 08 — Plum Aubergine (Dark · Night Gallery Violet & Soft Gold) */
+:root[data-theme="08-plum-aubergine"] {
+  color-scheme: dark;
+  --bg: #131018;
+  --sidebar: #0e0b12;
+  --panel: #1b1723;
+  --panel-alt: #251f30;
+  --input-bg: #0f0c14;
+  --line: #2d263a;
+  --line-strong: #433856;
+  --line-hover: #62527d;
+  --text: #f3eff8;
+  --text-soft: #d1c7de;
+  --muted: #9a8ead;
+  --accent: #9d74e8;
+  --accent-hover: #b08cf2;
+  --accent-ink: #120b20;
+  --accent-tint: rgba(157, 116, 232, 0.14);
+  --gold: #d2b67c;
+  --gold-tint: rgba(210, 182, 124, 0.1);
+  --gold-border: rgba(210, 182, 124, 0.3);
+  --hover-tint: rgba(243, 239, 248, 0.045);
+  --hairline: rgba(243, 239, 248, 0.07);
+  --hero-bg: linear-gradient(125deg, #241b33 0%, #16121d 65%, #201829 100%);
+  --cover-bg: linear-gradient(160deg, #272033, #130f1a);
+  --placeholder: #54466b;
+  --chip-bg: rgba(14, 11, 18, 0.86);
+  --dialog-bg: #17131e;
+  --backdrop: rgba(7, 5, 11, 0.88);
+  --dock-bg: rgba(14, 11, 18, 0.94);
+  --toast-bg: #f3eff8;
+  --toast-ink: #131018;
+  --player-bg: #0c0a10;
+  --player-head: linear-gradient(180deg, #181421 0%, #100d16 100%);
+  --player-bar: #120f18;
+  --player-ctl-bg: #1d1826;
+  --player-ctl-hover: #282135;
+  --chev-icon: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23d2b67c' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");
+}

@@ -1,0 +1,39 @@
+/* Palette 03 — Emerald Nocturne (Dark · Deep Forest Velvet & Warm Brass) */
+:root[data-theme="03-emerald-nocturne"] {
+  color-scheme: dark;
+  --bg: #0e1412;
+  --sidebar: #0a0f0d;
+  --panel: #151e1b;
+  --panel-alt: #1d2925;
+  --input-bg: #0b100e;
+  --line: #22302b;
+  --line-strong: #32463f;
+  --line-hover: #4d6b61;
+  --text: #edf4f0;
+  --text-soft: #c5d4cc;
+  --muted: #8a9e95;
+  --accent: #2eb67d;
+  --accent-hover: #3bc98e;
+  --accent-ink: #061710;
+  --accent-tint: rgba(46, 182, 125, 0.13);
+  --gold: #cbb074;
+  --gold-tint: rgba(203, 176, 116, 0.1);
+  --gold-border: rgba(203, 176, 116, 0.3);
+  --hover-tint: rgba(237, 244, 240, 0.045);
+  --hairline: rgba(237, 244, 240, 0.07);
+  --hero-bg: linear-gradient(125deg, #162620 0%, #101916 65%, #17211c 100%);
+  --cover-bg: linear-gradient(160deg, #1c2a25, #0f1613);
+  --placeholder: #455c54;
+  --chip-bg: rgba(10, 15, 13, 0.86);
+  --dialog-bg: #121a17;
+  --backdrop: rgba(5, 9, 7, 0.88);
+  --dock-bg: rgba(10, 15, 13, 0.94);
+  --toast-bg: #edf4f0;
+  --toast-ink: #0e1412;
+  --player-bg: #090e0c;
+  --player-head: linear-gradient(180deg, #141e1b 0%, #0e1513 100%);
+  --player-bar: #0f1614;
+  --player-ctl-bg: #18231f;
+  --player-ctl-hover: #21302a;
+  --chev-icon: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23cbb074' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");
+}
