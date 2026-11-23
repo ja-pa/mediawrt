@@ -78,7 +78,8 @@ src/web/index.html   Application shell
 src/web/js/          UI logic and separate translations
 src/web/css/base.css Shared layout, player and responsive styles
 src/web/css/palettes/ One CSS file per selectable theme
-build.py            Packs sources and pinned Copyparty into mediawrt.py
+vendor/             Copyparty sources, bundled dependencies and licenses
+build.py            Packs local sources into mediawrt.py
 mediawrt.py         Ready-to-run generated application
 tests/             Integration and configuration tests
 ```
@@ -86,13 +87,15 @@ tests/             Integration and configuration tests
 Edit sources, then rebuild. No frontend bundler is needed:
 
 ```sh
-python build.py --download-upstream
+python build.py
 python -m unittest discover -s tests -v
 node --check src/web/js/app.js
 ```
 
-The explicit download verifies the pinned Copyparty 1.20.26 SHA-256.
-Later builds use `python build.py`; offline builds accept the SFX path as an argument.
+Builds use only checked-in sources under `src/` and `vendor/`; no downloads,
+SFX cache or pip installation are needed. `python build.py --output /path/mediawrt.py`
+chooses the output file. Vendored versions and licenses are listed in
+[vendor/README.md](vendor/README.md).
 On systems with a RAM-backed temporary directory, set `TMPDIR` to a disk-backed
 scratch directory when running upload/move tests; Copyparty rejects RAM-only uploads.
 

@@ -4,6 +4,7 @@ import importlib.util
 import json
 from pathlib import Path
 import socket
+import shutil
 import subprocess
 import sys
 import tempfile
@@ -20,6 +21,8 @@ class Integration(unittest.TestCase):
     def setUpClass(cls):
         cls.tmp = tempfile.TemporaryDirectory(prefix='mediawrt-test-')
         cls.base = Path(cls.tmp.name)
+        cls.executable = cls.base / 'mediawrt.py'
+        shutil.copyfile(ROOT / 'mediawrt.py', cls.executable)
         cls.media = cls.base / 'movies'
         cls.media.mkdir()
         (cls.media / 'Target').mkdir()
@@ -41,8 +44,8 @@ class Integration(unittest.TestCase):
     @classmethod
     def start(cls):
         cls.output = (cls.base / 'server.log').open('a')
-        cls.process = subprocess.Popen([sys.executable, str(ROOT / 'mediawrt.py'), '--config', str(cls.cfg)],
-                                      stdout=cls.output, stderr=cls.output)
+        cls.process = subprocess.Popen([sys.executable, '-I', '-S', str(cls.executable), '--config', str(cls.cfg)],
+                                      stdout=cls.output, stderr=cls.output, cwd=cls.base)
         for _ in range(200):
             try:
                 if cls.api('movies')['total'] >= 1 and not cls.api('status')['scanning']:
@@ -86,7 +89,8 @@ class Integration(unittest.TestCase):
         with self.request('/media/Movie.mp4', headers={'Range': 'bytes=10-19'}) as res:
             self.assertEqual(res.status, 206)
             self.assertEqual(res.read(), b'0123456789')
-        for path in ['/media/', '/app/js/app.js', '/app/js/translations.js', '/app/css/base.css']:
+        for path in ['/media/', '/app/js/app.js', '/app/js/translations.js', '/app/css/base.css',
+                     '/media/?native=1', '/.cpr/browser.js', '/.cpr/browser.css', '/.cpr/deps/mini-fa.woff']:
             with self.request(path) as res: self.assertEqual(res.status, 200)
 
     def test_02_permission_and_origin(self):

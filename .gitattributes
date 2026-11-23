@@ -1,2 +1,5 @@
 * text=auto eol=lf
 *.py text eol=lf
+
+# Preserve vendored upstream bytes across platforms.
+vendor/** -text

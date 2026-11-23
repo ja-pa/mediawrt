@@ -3,7 +3,6 @@
 import argparse
 import base64
 import hashlib
-import importlib.util
 import json
 import os
 from pathlib import Path
@@ -138,13 +137,7 @@ def main():
             tmp = dest.with_name(dest.name + '.new')
             tmp.write_bytes(data)
             tmp.replace(dest)
-    spec = importlib.util.spec_from_file_location('mediawrt_sfx', paths['runtime'] / 'copyparty-sfx.py')
-    sfx = importlib.util.module_from_spec(spec)
-    spec.loader.exec_module(sfx)
-    if sfx.VER != '1.20.26':
-        raise RuntimeError('Unsupported Copyparty version')
-    unpacked = sfx.unpack(str(paths['runtime']))
-    sys.path[:0] = [unpacked, str(Path(unpacked) / 'j2'), str(paths['runtime'])]
+    sys.path[:0] = [str(paths['runtime'] / 'vendor'), str(paths['runtime'])]
     sys.argv = arguments(cfg, root, paths)
     if opts.engine_help:
         sys.argv = ['mediawrt', '--help']
